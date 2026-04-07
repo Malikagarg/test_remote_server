@@ -64,6 +64,13 @@ async def init_db():
 @mcp.tool()
 async def add_expense(date: str, amount: float, category: str, subcategory: str = "", note: str = ""):
     """Add a new expense entry to the database with validation"""
+    
+    try:
+        amount = float(amount)
+    except (ValueError, TypeError):
+        return {"error": "Invalid amount. Must be a number"}
+
+    
     try:
         datetime.strptime(date, "%Y-%m-%d")
     except ValueError:
