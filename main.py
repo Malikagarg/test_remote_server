@@ -409,8 +409,8 @@ async def categories():
 
 
 app = mcp
-
+import asyncio
 if __name__ == "__main__":
-    import asyncio
+    
     asyncio.run(init_db())
     mcp.run()
