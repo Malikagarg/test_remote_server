@@ -2,11 +2,20 @@ import aiosqlite
 import os
 from datetime import datetime, timedelta
 from fastmcp import FastMCP
-
-DB_PATH = os.path.join(os.path.dirname(__file__), "expenses.db")
+DB_PATH = os.environ.get("DB_PATH", os.path.join(os.path.dirname(__file__), "expenses.db"))
 CATEGORIES_PATH = os.path.join(os.path.dirname(__file__), "categories.json")
 
-mcp = FastMCP("ExpenseTracker")
+# mcp = FastMCP("ExpenseTracker")
+from contextlib import asynccontextmanager
+from collections.abc import AsyncIterator
+
+@asynccontextmanager
+async def lifespan(server) -> AsyncIterator[None]:
+    await init_db()
+    yield
+
+mcp = FastMCP("ExpenseTracker", lifespan=lifespan)
+
 
 print(f"Database path: {DB_PATH}")
 
@@ -414,10 +423,3 @@ async def categories():
     async with aiofiles.open(CATEGORIES_PATH, "r", encoding="utf-8") as f:
         return await f.read()
 
-
-app = mcp
-import asyncio
-if __name__ == "__main__":
-    
-    asyncio.run(init_db())
-    mcp.run()
